@@ -10,15 +10,15 @@ use App\Models\Debit;
 use App\Models\Finance;
 use App\Models\Debt;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Income;
 
 class LineChartController extends Controller
 {
     public function monthlyExpensesByCategory()
     {
         $userId = Auth::id();
-        // Fetch monthly expenses grouped by category for the past year
         $monthlyExpensesByCategory = Expense::selectRaw('MONTH(date) as month, category, SUM(amount) as total_amount')
-            ->where('user_id', $userId) // Add this line to filter by user
+            ->where('user_id', $userId) 
             ->where('date', '>=', Carbon::now()->subYear())
             ->groupBy('month', 'category')
             ->orderBy('month', 'asc')
@@ -28,12 +28,9 @@ class LineChartController extends Controller
 
     public function weeklyExpensesByCategory()
     {
-        $userId = Auth::id(); // This line gets the ID of the currently authenticated user.
-
-        // Fetch weekly expenses by category for the current week
-        // Make sure to filter this data by the authenticated user's ID.
+        $userId = Auth::id(); 
         $weeklyExpensesByCategory = Expense::selectRaw('WEEK(date) as week, category, SUM(amount) as total_amount')
-            ->where('user_id', $userId) // Add this line to filter by user
+            ->where('user_id', $userId)
             ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->groupBy('week', 'category')
             ->orderBy('week', 'asc')
@@ -116,17 +113,16 @@ class LineChartController extends Controller
     public function upcomingDirectDebits()
     {
         $userId = Auth::id();
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
+        $today = Carbon::now()->format('Y-m-d');
 
-        // Fetch upcoming direct debits for the current month, scoped to the authenticated user
-        $upcomingDirectDebits = Debit::where('user_id', $userId) // Ensure debits are filtered by the authenticated user's ID
-            ->whereBetween('reoccurance_date', [$startOfMonth, $endOfMonth])
+        $upcomingDirectDebits = Debit::where('user_id', $userId)
+            ->where('reoccurance_date', '>=', $today)
             ->orderBy('reoccurance_date', 'asc')
             ->get();
 
         return response()->json($upcomingDirectDebits);
     }
+
 
     public function getFinances()
     {
@@ -147,29 +143,22 @@ class LineChartController extends Controller
         return view('container', compact('salesData'));
     }
 
-    public function debtsWithinMonth()
+        public function debtsWithinMonth()
     {
         $userId = Auth::id();
-        // Get the start and end dates of the current month
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
 
-        // Fetch debts whose payback deadlines fall within the current month and belong to the authenticated user
         $debtsWithinMonth = Debt::where('user_id', $userId)
                                 ->whereBetween('payback_deadline', [$startOfMonth, $endOfMonth])
-                                ->get();
+                                ->get()
+                                ->map(function ($debt) {
+                                    $debt->remaining = $debt->amount - $debt->paid; // Calculate remaining debt
+                                    return $debt;
+                                });
 
-        // Transform the date strings to a format compatible with JavaScript's Date object
-        $formattedDebts = $debtsWithinMonth->map(function ($debt) {
-            return [
-                'name' => $debt->name,
-                'payback_deadline' => Carbon::parse($debt->payback_deadline)->toDateString(),
-            ];
-        });
-
-        return response()->json($formattedDebts);
+        return response()->json($debtsWithinMonth);
     }
-
 
     public function expenseCategoriesForDoughnutChart()
     {
@@ -184,7 +173,32 @@ class LineChartController extends Controller
 
         return response()->json($expenseCategories);
     }
+    public function incomeOverTimeForLineChart()
+    {
+        $userId = Auth::id();
+        // Fetch dates and amounts of incomes for the current month, scoped to the authenticated user
+        $dailyIncomes = Income::select(DB::raw('DATE(date) as day'), DB::raw('SUM(value) as total_value'))
+            ->where('user_id', $userId) // Ensure incomes are filtered by the authenticated user's ID
+            ->whereYear('date', '=', now()->year)
+            ->whereMonth('date', '=', now()->month)
+            ->groupBy(DB::raw('DATE(date)'))
+            ->orderBy('day', 'ASC')
+            ->get();
 
+        // Prepare data for the line chart
+        $chartData = [
+            'labels' => $dailyIncomes->pluck('day')->all(),
+            'datasets' => [
+                [
+                    'label' => "Total Income",
+                    'data' => $dailyIncomes->pluck('total_value')->all(),
+                    'fill' => false,
+                    'borderColor' => 'rgb(75, 192, 192)',
+                    'lineTension' => 0.1
+                ]
+            ]
+        ];
 
+        return response()->json($chartData);
+    }
 }
-

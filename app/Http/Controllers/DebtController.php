@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Debt;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DebtController extends Controller
 {
     public function index()
     {
-        // Get the currently authenticated user
         $user = Auth::user();
-
-        // Fetch debts associated with the authenticated user
-        $debts = $user->debts()->get();
+        $debts = $user->debts()->with(['payments'])->get()->each(function ($debt) {
+            $remainingDays = Carbon::now()->diffInDays(Carbon::parse($debt->payback_deadline), false);
+            $debt->remaining_days = $remainingDays > 0 ? $remainingDays : 0;
+        });
 
         return view('admin.debts.index', compact('debts'));
     }
@@ -29,7 +31,6 @@ class DebtController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        // Associate the debt with the authenticated user
         $user = Auth::user();
         $debt = new Debt($request->all());
         $user->debts()->save($debt);
@@ -39,8 +40,6 @@ class DebtController extends Controller
 
     public function destroy(Debt $debt)
     {
-        
-        // Check if the debt belongs to the authenticated user
         if ($debt->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -51,19 +50,32 @@ class DebtController extends Controller
 
     public function payDebt(Request $request)
     {
+        $request->validate([
+            'debt_id' => 'required|exists:debts,id',
+            'payment_amount' => 'required|numeric|min:0.01',
+        ]);
+
         $debt = Debt::findOrFail($request->debt_id);
 
-        // Check if the debt belongs to the authenticated user
         if ($debt->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Assuming you have a method to handle the payment logic
-        // Update the debt with the payment
-        $debt->amount -= $request->payment_amount; // Adjust this logic as per your needs
+        $payment = new Payment([
+            'amount' => $request->payment_amount,
+            'payment_date' => now(), 
+        ]);
+
+        $debt->payments()->save($payment);
+
+        $debt->amount -= $request->payment_amount;
+        if($debt->amount <= 0) {
+            $debt->amount = 0; 
+            $debt->status = 'paid'; 
+        }
         $debt->save();
 
         return back()->with('success', 'Payment logged successfully.');
     }
-}
 
+}

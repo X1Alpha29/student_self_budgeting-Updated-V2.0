@@ -4,10 +4,10 @@
 <div class="container-fluid" style="min-height: 100vh; display: flex; flex-direction: column;">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <div class="card shadow"> <!-- Removed width adjustment -->
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <div class="card shadow"> 
+                <div class="card-header-sm text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Debts</h4>
-                    <button id="logDebtBtn" class="btn btn-success">Log Debt</button>
+                    <button id="logDebtBtn" class="btn btn-success">+Debt</button>
                 </div>
                 <div class="card-body">
                     @if($debts->isEmpty())
@@ -30,21 +30,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($debts as $debt)
-                                <tr>
+                            @foreach ($debts as $debt)
+                                @php
+                                $daysRemaining = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($debt->payback_deadline), false);
+                                $rowClass = $debt->status === 'paid' ? 'table-success' : ($daysRemaining <= 0 ? 'table-danger' : '');
+                                @endphp
+                                <tr class="{{ $rowClass }}">
                                     <th scope="row">{{ $loop->iteration }}</th>
                                     <td>{{ $debt->name }}</td>
                                     <td>£{{ number_format($debt->amount, 2) }}</td>
                                     <td>{{ $debt->date }}</td>
                                     <td>{{ $debt->payback_deadline }}</td>
-                                    <td>
-                                        <strong>
-                                            {{ \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($debt->payback_deadline), false) }} days
-                                        </strong>
-                                    </td>
+                                    <td>{{ max($daysRemaining, 0) }} days</td>
                                     <td>{{ $debt->notes }}</td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-success paymentBtn" data-debt-id="{{ $debt->id }}" style="margin-right: 5px;">Payment</button>
+                                        <button type="button" class="btn btn-sm btn-primary paymentBtn" data-debt-id="{{ $debt->id }}" style="margin-right: 5px;">Payment</button>
                                         <form action="{{ route('debts.destroy', $debt->id) }}" method="POST" style="display: inline-block;">
                                             @csrf
                                             @method('DELETE')
@@ -52,10 +52,10 @@
                                         </form>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr class="{{ $rowClass }}">
                                     <td colspan="8">
                                         <details>
-                                            <summary>View Payments</summary>
+                                            <summary>View Payments ({{ $debt->payments->count() }} payments, £{{ number_format($debt->payments->sum('amount'), 2) }} paid)</summary>
                                             <ul>
                                                 @forelse ($debt->payments as $payment)
                                                 <li>£{{ number_format($payment->amount, 2) }} on {{ $payment->created_at->format('Y-m-d') }}</li>
@@ -67,6 +67,8 @@
                                     </td>
                                 </tr>
                                 @endforeach
+
+
                             </tbody>
                         </table>
                     </div>
@@ -74,29 +76,33 @@
                 </div>
             </div>
             <div id="logDebtCard" class="card mt-3" style="display:none; max-width: 600px; margin: 0 auto;"> <!-- Adjusted width -->
-                <div class="card-header bg-primary text-white">Log a New Debt</div>
+            <div class="card-header-sm text-white">Log a New Debt</div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('debts.store') }}">
                         @csrf
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="amount" class="form-label">Amount</label>
+                                <input type="number" step="0.01" class="form-control" id="amount" name="amount" required min="0">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="amount" class="form-label">Amount</label>
-                            <input type="number" step="0.01" class="form-control" id="amount" name="amount" required min="0">
-                        </div>
-                        <div class="mb-3">
-                            <label for="date" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date" name="date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="payback_deadline" class="form-label">Payback Deadline</label>
-                            <input type="date" class="form-control" id="payback_deadline" name="payback_deadline" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="payback_deadline" class="form-label">Payback Deadline</label>
+                                <input type="date" class="form-control" id="payback_deadline" name="payback_deadline" required>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes"></textarea>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
                         </div>
                         <button type="submit" class="btn btn-success">Save Debt</button>
                         <button type="button" class="btn btn-secondary" id="cancelLogDebtBtn">Cancel</button>
@@ -107,17 +113,17 @@
     </div>
     <!-- Log Payment Card -->
     <div id="logPaymentCard" class="card" style="display:none; max-width: 600px; margin: 0 auto;"> <!-- Adjusted width -->
-        <div class="card-header bg-primary text-white">Log Payment</div>
+        <div class="card-header-sm text-white">Log Payment</div>
         <div class="card-body">
             <form id="logPaymentForm" method="POST" action="{{ route('debts.pay') }}">
                 @csrf
                 <input type="hidden" id="debtIdForPayment" name="debt_id">
                 <div class="mb-2">
                     <label for="paymentAmount" class="form-label">Payment Amount</label>
-                    <input type="number" class="form-control" id="paymentAmount" name="payment_amount" required min="0">
+                    <input type="number" class="form-control" id="paymentAmount" name="payment_amount" required min="0" placeholder="£">
                 </div>
                 <div class="mb-2">
-                    <button type="submit" class="btn btn-sm btn-success">Save Payment</button>
+                    <button type="submit" class="btn btn-sm btn-success">Save</button>
                     <button type="button" class="btn btn-sm btn-secondary" id="cancelLogPaymentBtn">Cancel</button>
                 </div>
             </form>

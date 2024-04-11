@@ -42,13 +42,20 @@ class DebitController extends Controller
      */
     public function store(Request $request)
     {
-        // Associate the debit with the authenticated user
+        $userId = Auth::id();
+
         $debitData = $request->all();
-        $debitData['user_id'] = Auth::id();
-        
+        $debitData['user_id'] = $userId;
+
+        if (empty($debitData['details'])) {
+            $debitData['details'] = 'No details provided'; 
+        }
+
         Debit::create($debitData);
-        return back();
+
+        return back()->with('success', 'Direct Debit added successfully.');
     }
+
 
     /**
      * Display the specified resource.
@@ -71,13 +78,21 @@ class DebitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $userId = Auth::id();
         $debit = Debit::where('user_id', $userId)->findOrFail($id);
-        $debit->update($request->all());
-        return redirect()->route('debits.index');
+
+        $updatedData = $request->all();
+        if (empty($updatedData['details'])) {
+            $updatedData['details'] = 'No details provided';
+        }
+
+        $debit->update($updatedData);
+
+        return redirect()->route('debits.index')->with('success', 'Direct Debit updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.

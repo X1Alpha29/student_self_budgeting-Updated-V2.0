@@ -94,7 +94,7 @@ class CategoryController extends Controller
             'to_date' => $request->to_date,
         ]);
 
-        return redirect()->route('categories.index')->with('message', 'Category updated successfully!');
+        return redirect()->route('categories.index')->withSuccess('Category updated successfully!');
     }
 
     public function destroy(string $id)

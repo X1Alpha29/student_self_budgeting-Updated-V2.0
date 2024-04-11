@@ -9,6 +9,10 @@ class Debt extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'amount', 'date', 'payback_deadline', 'notes', 'user_id'];
+    protected $casts = [
+        'date' => 'datetime',
+        'payback_deadline' => 'datetime',
+    ];
 
     public function payments()
     {

@@ -1,5 +1,4 @@
 @include('admin.layouts.header')
-
   <div id="wrapper">
     <!-- Sidebar -->
 @include('admin.layouts.sidebar')
@@ -9,7 +8,6 @@
         <!-- TopBar -->
 @include('admin.layouts.navbar')
         <!-- Topbar -->
-
         <!-- Container Fluid-->
         @include('admin.layouts.container')
         <!---Container Fluid-->
@@ -17,10 +15,3 @@
       <!-- Footer -->
       @include('admin.layouts.footer')
       <!-- Footer -->
-    </div>
-  </div>
-
-  <!-- Scroll to top -->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>

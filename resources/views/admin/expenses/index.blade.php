@@ -1,13 +1,21 @@
 @extends('admin.layouts.main')
 
 @section('content')
+    @if(session('success'))
+        <div class="alert alert-light" style="color: #343a40;">
+            {{ session('success') }}
+        </div>
+    @endif
 <div id="expensesContainer" class="container-fluid" style="min-height: 100vh; flex-direction: column;">
-    <!-- Card Widget for Expenses -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="home">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Expenses</li>
+        </ol>
     <div class="card-widget">
         <div class="card shadow-lg">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <div class="card-header-sm text-white d-flex justify-content-between align-items-center">
                 <h5>Expenses</h5>
-                <a href="{{ route('expenses.create') }}" class="btn btn-success">Create New Expense</a>
+                <a href="{{ route('expenses.create') }}" class="btn btn-success">+Expense</a>
             </div>
             <div class="card-body">
                 <div class="list-group">
@@ -54,6 +62,7 @@
         </div>
     </div>
 </div>
+
 
 
 <script>

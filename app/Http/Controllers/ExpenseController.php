@@ -93,7 +93,7 @@ public function update(Request $request, $id)
 
     $expense->update($validatedData);
 
-    return redirect()->route('expenses.index')->with('message', 'Expense updated successfully!');
+    return redirect()->route('expenses.index')->with('success', 'Expense updated successfully!');
 }
 
 public function destroy($id)

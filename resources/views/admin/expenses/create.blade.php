@@ -2,43 +2,47 @@
 
 @section('content')
 <div class="container mt-4">
-    <div class="card shadow-lg" style="max-width: 600px; margin: 0 auto;"> <!-- Adjusted width -->
-        <div class="card-header bg-dark text-white">
+    <div class="card shadow-lg" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header-sm text-white">
             <h5>Log Your Expense</h5>
         </div>
         <div class="card-body">
             <form method="POST" action="/expenses">
                 @csrf
-                <div class="mb-3">
-                    <label for="expenseName" class="form-label">Expense Name</label>
-                    <input type="text" class="form-control" id="expenseName" name="expense_name" required>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="expenseName" class="form-label">Expense Name</label>
+                        <input type="text" class="form-control" id="expenseName" name="expense_name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" placeholder="£" id="amount" name="amount" required>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="categoryInput" class="form-label">Category</label>
-                    <select class="form-select" id="categoryInput" name="category">
-                        <option value="" selected disabled>Choose a category</option>
-                        <option value="Bills">Bills</option>
-                        <option value="Entertainment">Entertainment</option>
-                        <option value="Transportation">Transportation</option>
-                        <option value="Food">Food</option>
-                        <option value="Alcohol">Alcohol</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Holiday">Holiday</option>
-                        <option value="Family">Family</option>
-                        @if(session('newCategory'))
-                            <?php $newCategory = session('newCategory'); ?>
-                            <option value="{{ $newCategory->id }}">{{ $newCategory->name }}</option>
-                        @endif
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="amount" class="form-label">Amount</label>
-                    <input type="number" class="form-control" placeholder="£" id="amount" name="amount" required>
-                </div>
-                <div class="mb-3">
-                    <label for="date" class="form-label">Date</label>
-                    <input type="date" class="form-control" id="date" name="date" required>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="categoryInput" class="form-label">Category</label>
+                        <select class="form-select" id="categoryInput" name="category" required>
+                            <option value="" selected disabled>Choose a category</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Food">Food</option>
+                            <option value="Alcohol">Alcohol</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Holiday">Holiday</option>
+                            <option value="Family">Family</option>
+                            @if(session('newCategory'))
+                                <?php $newCategory = session('newCategory'); ?>
+                                <option value="{{ $newCategory->id }}">{{ $newCategory->name }}</option>
+                            @endif
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="notes" class="form-label">Notes</label>
@@ -74,11 +78,6 @@
 </div>
 @endsection
 
-
-
-
-
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         if(window.location.href.indexOf("#newExpenseForm") > -1) {
@@ -86,4 +85,3 @@
         }
     });
 </script>
-

@@ -5,17 +5,22 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="home">Home</a></li>
-            <li class="breadcrumb-item">Tables</li>
             <li class="breadcrumb-item active" aria-current="page">Budgets</li>
         </ol>
     </div>
 
+    @if(session('success'))
+        <div class="alert alert-light" style="color: #343a40;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-lg-12 mb-4">
             <div class="card shadow">
-                <div class="card-header-sm bg-dark text-white d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold">Budget Table</h6>
-                    <a href="{{ route('category.create') }}" class="btn btn-success">Create New Budget</a>
+                <div class="card-header-sm text-white d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold">Budgets</h6>
+                    <a href="{{ route('category.create') }}" class="btn btn-success">+Budget</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-flush table-hover table-striped">
@@ -57,7 +62,7 @@
                             @endforeach
                             @else
                             <tr>
-                                <td colspan="9">No Category created yet.</td>
+                                <td colspan="9">No Budgets created yet.</td>
                             </tr>
                             @endif
                         </tbody>
@@ -73,7 +78,7 @@
 
 <script>
     function confirmDelete(id) {
-        if (confirm("Are you sure you want to delete this category?")) {
+        if (confirm("Are you sure you want to delete this Budget?")) {
             document.getElementById("deleteForm" + id).submit();
         }
         return false; // Cancel button was pressed, so return false

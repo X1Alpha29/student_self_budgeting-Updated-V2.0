@@ -19,6 +19,12 @@
                 </a>
             </li>
             <li>
+                <a class="nav-link" href="{{ route('income.index') }}">
+                    <i class="fas fa-fw fa-wallet"></i> <!-- Finance icon -->
+                    Income
+                </a>
+            </li>
+            <li>
                 <a class="nav-link" href="{{ route('expenses.index') }}">
                     <i class="fas fa-fw fa-receipt"></i> <!-- Change icon class here -->
                     Expenses

@@ -5,9 +5,9 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header bg-dark text-white">
+                <div class="card-header-sm text-white">
                     <h4 class="mb-0 d-inline-block">Direct Debits</h4>
-                    <button onclick="showAddForm()" class="btn btn-success float-end">+ Add New</button> <!-- Moved the Add New button here -->
+                    <button onclick="showAddForm()" class="btn btn-success float-end">+ Add New</button>
                 </div>
                 <div class="card-body">
                     @if($debits->isEmpty())
@@ -34,7 +34,7 @@
                                             <td>£{{ number_format($debit->amount, 2) }}</td>
                                             <td>{{ date('Y-m-d', strtotime($debit->reoccurance_date)) }}</td>
                                             <td>
-                                                <button onclick="showUpdateForm({{ $debit }})" class="btn btn-primary btn-sm">Update</button>
+                                                <button onclick="showUpdateForm({{ json_encode($debit) }})" class="btn btn-primary btn-sm">Update</button>
                                                 <form action="{{ route('debits.destroy', $debit->id) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
@@ -53,62 +53,116 @@
     </div>
 
     <div class="row mt-3 justify-content-center">
-    <div class="col-md-6">
-        <div id="addDebitCard" class="card" style="display: none;">
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0">Add New Direct Debit</h5>
+        <div class="col-md-6">
+            <div id="addDebitCard" class="card" style="display: none;">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Add New Direct Debit</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('debits.store') }}" method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="category">Category</label>
+                                    <select class="form-control" id="category" name="category">
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Yearly">Yearly</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="details">Details</label>
+                                    <textarea class="form-control" id="details" name="details"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="amount">Amount (£)</label>
+                                    <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="reoccurance_date">Reoccurrence Date</label>
+                                    <input type="date" class="form-control" id="reoccurance_date" name="reoccurance_date" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" onclick="hideAddForm()" class="btn btn-secondary float-right">Cancel</button>
+                    </form>
+                </div>
             </div>
-            <div class="card-body">
-                <form action="{{ route('debits.store') }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
+
+            <!-- Update Debit Card Form -->
+            <div id="updateDebitCard" class="card" style="display: none;">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Update Direct Debit</h5>
+                </div>
+                <div class="card-body">
+                    <form action="" method="POST" id="updateDebitForm">
+                        @csrf
+                        @method('PUT')
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="updateName">Name</label>
+                                    <input type="text" class="form-control" id="updateName" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="updateCategory">Category</label>
+                                    <select class="form-control" id="updateCategory" name="category">
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Yearly">Yearly</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="category">Category</label>
-                                <select class="form-control" id="category" name="category">
-                                    <option value="Weekly">Weekly</option>
-                                    <option value="Monthly">Monthly</option>
-                                    <option value="Yearly">Yearly</option>
-                                </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="updateDetails">Details</label>
+                                    <textarea class="form-control" id="updateDetails" name="details"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="updateAmount">Amount (£)</label>
+                                    <input type="number" class="form-control" id="updateAmount" name="amount" step="0.01" required>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="details">Details</label>
-                                <textarea class="form-control" id="details" name="details"></textarea>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="updateReoccuranceDate">Reoccurrence Date</label>
+                                    <input type="date" class="form-control" id="updateReoccuranceDate" name="reoccurance_date" required>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="amount">Amount (£)</label>
-                                <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="reoccurance_date">Reoccurrence Date</label>
-                                <input type="date" class="form-control" id="reoccurance_date" name="reoccurance_date" required>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button type="button" onclick="hideAddForm()" class="btn btn-secondary float-right">Cancel</button>
-                </form>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="button" onclick="hideUpdateForm()" class="btn btn-secondary float-right">Cancel</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
 </div>
 
 
@@ -130,6 +184,8 @@
         document.getElementById('updateAmount').value = debit.amount;
         document.getElementById('updateReoccuranceDate').value = debit.reoccurance_date;
 
+        // Set the form's action attribute dynamically
+        document.getElementById('updateDebitForm').action = `/debits/${debit.id}`;
     }
     function hideUpdateForm() {
     document.getElementById('updateDebitCard').style.display = 'none';

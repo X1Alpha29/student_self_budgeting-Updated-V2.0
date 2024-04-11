@@ -16,7 +16,7 @@
         <form action="{{ route('category.store') }}" method="POST" enctype="multipart/form-data" id="createCategoryForm">
             @csrf
             <div class="card mb-3 shadow-sm"> <!-- Added shadow for depth -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-dark text-white">
+                <div class="card-header-sm py-3 d-flex flex-row align-items-center justify-content-between text-white">
                     <h6 class="m-0 font-weight-bold">Create Budget Category</h6>
                 </div>
                 <div class="card-body">

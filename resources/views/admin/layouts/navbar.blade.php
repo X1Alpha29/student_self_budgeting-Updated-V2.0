@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand navbar-dark bg-dark topbar mb-4 static-top">
+<nav class="navbar navbar-expand topbar mb-4 static-top" id="nav-bar1">
   <ul class="navbar-nav ml-auto">
     <div class="topbar-divider d-none d-sm-block"></div>
     <li class="nav-item dropdown no-arrow">

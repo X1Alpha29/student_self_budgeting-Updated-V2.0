@@ -1,8 +1,7 @@
 @extends('admin.layouts.main')
 
 @section('content')
-<div class="container d-flex justify-content-center mt-5">
-    <!-- Main Profile Card -->
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card" id="profileCard" style="width: 30rem;">
         <div class="card-body text-center">
             <img src="{{ Auth::user()->profile_picture ? asset('storage/'.Auth::user()->profile_picture) : asset('default.png') }}" class="card-img-top" alt="Profile Picture" style="width: 150px; height: 150px; border-radius: 50%; margin-bottom: 10px;">
@@ -13,7 +12,6 @@
                     <label for="profile_picture" class="btn btn-primary btn-sm" title="Choose file">
                         <i class="fas fa-file-upload"></i>
                     </label>
-                    <!-- Save Profile Picture Button -->
                     <button type="submit" id="savePictureBtn" class="btn btn-primary btn-sm d-none" style="height: 38px;">
                         Save
                     </button>
@@ -35,7 +33,6 @@
         </div>
     </div>
 
-    <!-- Update Details Card (Initially Hidden) -->
     <div class="card d-none" id="updateCard" style="width: 18rem;">
         <div class="card-body text-center">
             <form action="{{ route('profile.update-details') }}" method="POST">
@@ -64,9 +61,8 @@
         updateCard.classList.toggle('d-none');
     }
 
-    document.getElementById('profile_picture').onchange = function () {
+    document.getElementById('profile_picture').onchange = function() {
         if (this.files.length > 0) {
-            // Show the Save button
             document.getElementById('savePictureBtn').classList.remove('d-none');
         }
     };
@@ -78,3 +74,4 @@
     }
 </script>
 @endsection
+
